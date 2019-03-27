@@ -15,23 +15,27 @@ import {
   Content
 } from "native-base";
 
+import CartButton from "../CartButton";
 // Style
 import styles from "./styles";
 
 //List
-import coffeeshops from "../CoffeeList/list";
-import CartButton from "../CartButton";
+// import coffeeshops from "../CoffeeList/list";
+
+// Actions
+import { addItemToCart } from "../../store/actions/cartActions";
 
 class CoffeeDetail extends Component {
   static navigationOptions = ({ navigation }) => {
     return {
       title: navigation.getParam("coffeeShop").name,
-      headerRight: <CartButton />
+      headerRight: <CartButton navigation={navigation} />
     };
   };
   state = {
     drink: "Cappuccino",
-    option: "Small"
+    option: "Small",
+    quantity: 1
   };
 
   changeDrink = value => {
@@ -46,10 +50,25 @@ class CoffeeDetail extends Component {
     });
   };
 
+  handleAdd = () => {
+    console.log("====================");
+    console.log("ZERO current value: ", this.state);
+    this.props.addItem(this.state);
+    const { items } = this.props.cartReducer;
+    console.log("ZERO Items in the cart : ", items);
+  };
+  componentDidMount() {}
   render() {
     const { coffeeShops, loading } = this.props.coffeeReducer;
+    const { items } = this.props.cartReducer;
+    console.log("ZERO => items: ", items);
+    console.log();
     if (loading) return <Content />;
-    const coffeeshop = this.props.navigation.getParam("coffeeShop");
+    // const coffeeshop = coffeeShops[0];
+    const coffeeshop = this.props.navigation.getParam(
+      "coffeeShop",
+      "default still loading"
+    );
     return (
       <Content>
         <List>
@@ -93,7 +112,7 @@ class CoffeeDetail extends Component {
               </Picker>
             </Body>
           </ListItem>
-          <Button full danger>
+          <Button full danger onPress={this.handleAdd}>
             <Text>Add</Text>
           </Button>
         </List>
@@ -103,7 +122,15 @@ class CoffeeDetail extends Component {
 }
 
 const mapStateToProps = state => ({
-  coffeeReducer: state.coffeeReducer
+  coffeeReducer: state.coffeeReducer,
+  cartReducer: state.cartReducer
 });
 
-export default connect(mapStateToProps)(CoffeeDetail);
+const mapDispatchToProps = dispatch => ({
+  addItem: item => dispatch(addItemToCart(item))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(CoffeeDetail);

@@ -1,9 +1,17 @@
 import React, { Component } from "react";
+import { removeItemFromCart } from "../../store/actions/cartActions";
+
+import { connect } from "react-redux";
 
 // NativeBase Components
 import { Text, Left, Body, Right, Button, ListItem, Icon } from "native-base";
 
 class CartItem extends Component {
+  handleTrash = () => {
+    const { item } = this.props;
+    console.log("ZERO => CartItem => ", item);
+    this.props.removeItem(item);
+  };
   render() {
     const { item } = this.props;
     return (
@@ -18,7 +26,7 @@ class CartItem extends Component {
           <Text style={{ color: "white" }}>{item.quantity}</Text>
         </Body>
         <Right>
-          <Button transparent>
+          <Button transparent onPress={this.handleTrash}>
             <Icon name="trash" style={{ color: "white", fontSize: 21 }} />
           </Button>
         </Right>
@@ -27,4 +35,11 @@ class CartItem extends Component {
   }
 }
 
-export default CartItem;
+const mapDispatchToProps = dispatch => ({
+  removeItem: item => dispatch(removeItemFromCart(item))
+});
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(CartItem);
